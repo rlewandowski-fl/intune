@@ -303,9 +303,9 @@ If (Test-Path -Path $SourcePath -ErrorAction SilentlyContinue) {
         If ($SyncFolder -like "*Foley*") {
             $DestinationPath = $SyncFolder + "\Applications\ND Office Echo"
             If (Test-Path $DestinationPath -ErrorAction SilentlyContinue) {
-                $SourcePath = """" + $SourcePath + """"
-                $DestinationPath = """" + $DestinationPath + """"
+                Remove-Item -Path $SourcePath -Recurse -Force -ErrorAction SilentlyContinue
                 New-Item -ItemType Junction -Path $SourcePath -Target $DestinationPath -Force -ErrorAction SilentlyContinue
+                
             }
             Else {
                 New-Item $DestinationPath -ItemType Directory -Force -ErrorAction SilentlyContinue
@@ -314,7 +314,8 @@ If (Test-Path -Path $SourcePath -ErrorAction SilentlyContinue) {
     }
 }
 Else {
-    New-Item $SourcePath -ItemType Directory -Force -ErrorAction SilentlyContinue
+    Remove-Item -Path $SourcePath -Recurse -Force -ErrorAction SilentlyContinue
+    New-Item -ItemType Junction -Path $SourcePath -Target $DestinationPath -Force -ErrorAction SilentlyContinue
 }
 
 Stop-Transcript -Verbose
