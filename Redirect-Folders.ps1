@@ -296,19 +296,28 @@ Else {
 
 #Manual redirection using mklink
 #ND Office Echo
-$SourcePath = (Get-ChildItem -Path Env:USERPROFILE).Value
+$SourcePath = (Get-ChildItem -Path Env:USERPROFILE -ErrorAction SilentlyContinue).Value
 $SourcePath = $UserProfilePath + "\ND Office Echo"
-$SourcePath = """" + $SourcePath + """"
-$DestinationPath = (Get-ChildItem -Path Env:OneDrive).Value
-If ($DestinationPath -like "*Foley*") {
-    $DestinationPath = $DestinationPath + "\Applications\ND Office Echo"
+If (Test-Path -Path $SourcePath -ErrorAction SilentlyContinue) {
+    $DestinationPath = (Get-ChildItem -Path Env:OneDrive -ErrorAction SilentlyContinue).Value
+    If (Test-Path -Path $DestinationPath -ErrorAction SilentlyContinue) {
+        If ($DestinationPath -like "*Foley*") {
+            $DestinationPath = $DestinationPath + "\Applications\ND Office Echo"
+            If (Test-Path $DestinationPath -ErrorAction SilentlyContinue) {
+                $SourcePath = """" + $SourcePath + """"
+                $DestinationPath = """" + $DestinationPath + """"
+                Start-Process -FilePath mklink -ArgumentList "/j $DestinationPath $SourcePath" -NoNewWindow -Wait -ErrorAction SilentlyContinue
+            }
+            Else {
+                $DestinationPath = """" + $DestinationPath + """"
+                New-Item $DestinationPath -ItemType Directory -ErrorAction SilentlyContinue
+            }
+        }
+    }
 }
 Else {
-    $DestinationPath = $DestinationPath + "\OneDrive - Foley & Lardner LLP\Applications\ND Office Echo"
-}
-$DestinationPath = """" + $DestinationPath + """"
-If (Test-Path -Path $SourcePath -ErrorAction SilentlyContinue) {
-    Start-Process -FilePath mklink -ArgumentList "/j $DestinationPath $SourcePath" -NoNewWindow -Wait -ErrorAction SilentlyContinue
+    $SourcePath = """" + $SourcePath + """"
+    New-Item $SourcePath -ItemType Directory -ErrorAction SilentlyContinue
 }
 
 Stop-Transcript -Verbose
