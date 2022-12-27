@@ -1,7 +1,7 @@
 ﻿# Requires -Version 3
 <#
     .SYNOPSIS
-        Creates a scheduled task to implement folder redirection for.
+        Creates a scheduled task to implement folder redirection.
 
     .NOTES
         Name: Redirect-Folders.ps1
