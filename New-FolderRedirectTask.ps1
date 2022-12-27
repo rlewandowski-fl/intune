@@ -43,7 +43,8 @@ If (Test-Path "$Target\$Script") {
 }
 
 Write-Verbose "Downloading $Url to $Target\$Script."
-Start-BitsTransfer -Source $Url -Destination "$Target\$Script" -Priority Foreground -TransferPolicy Always -ErrorAction SilentlyContinue -ErrorVariable $TransferError
+#Start-BitsTransfer -Source $Url -Destination "$Target\$Script" -Priority Foreground -TransferPolicy Always -ErrorAction SilentlyContinue -ErrorVariable $TransferError
+Invoke-WebRequest -Uri $Url -OutFile $Target\$Script -ErrorAction SilentlyContinue -ErrorVariable $TransferError
 If (Test-Path -Path "$Target\$Script") { Write-Verbose "$Target\$Script downloaded successfully." }
 
 $vbScript | Out-File -FilePath "$Target\$ScriptVb" -Force -Encoding ascii
