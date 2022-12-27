@@ -296,26 +296,73 @@ Else {
 
 #Manual redirection of existing folder using junction
 #ND Office Echo
-$SourcePath = (Get-ChildItem -Path Env:USERPROFILE -ErrorAction SilentlyContinue).Value
-$SourcePath = $SourcePath + "\ND Office Echo"
-If (Test-Path -Path $SourcePath -ErrorAction SilentlyContinue) {
-    If (Test-Path -Path $SyncFolder -ErrorAction SilentlyContinue) {
-        If ($SyncFolder -like "*Foley*") {
-            $DestinationPath = $SyncFolder + "\Applications\ND Office Echo"
-            If (Test-Path $DestinationPath -ErrorAction SilentlyContinue) {
-                Remove-Item -Path $SourcePath -Recurse -Force -ErrorAction SilentlyContinue
-                New-Item -ItemType Junction -Path $SourcePath -Target $DestinationPath -Force -ErrorAction SilentlyContinue
-                
+$RegPath = "HKCU:\Software\Foley"
+$RegName = "OneDrive-NDOfficeEcho"
+$RegValue = "1"
+$HaveIRan = (Get-ItemPropertyValue -Path $RegPath -Name "OneDrive-NDOfficeEcho" -ErrorAction SilentlyContinue)
+If (!($HaveIRan -ieq 1)) {
+    $SourcePath = (Get-ChildItem -Path Env:USERPROFILE -ErrorAction SilentlyContinue).Value
+    $SourcePath = $SourcePath + "\ND Office Echo"
+    If (Test-Path -Path $SourcePath -ErrorAction SilentlyContinue) {
+        Remove-Item -Path $SourcePath -Recurse -Force -ErrorAction SilentlyContinue
+        If (Test-Path -Path $SyncFolder -ErrorAction SilentlyContinue) {
+            If ($SyncFolder -like "*Foley*") {
+                $DestinationPath = $SyncFolder + "\Applications\ND Office Echo"
+                If (Test-Path $DestinationPath -ErrorAction SilentlyContinue) {
+                    New-Item -ItemType Junction -Path $SourcePath -Target $DestinationPath -Force -ErrorAction SilentlyContinue
+                    If (!(Test-Path $RegPath)) {
+                        New-Item -Path $RegPath -Force | Out-Null
+                        New-ItemProperty -Path $RegPath -Name $RegName -Value $RegValue -PropertyType STRING -Force | Out-Null
+                    }
+                    Else {
+                        New-ItemProperty -Path $RegPath -Name $RegName -Value $RegValue -PropertyType STRING -Force | Out-Null
+                    }
+                }
+                Else {
+                    New-Item $DestinationPath -ItemType Directory -Force -ErrorAction SilentlyContinue
+                    New-Item -ItemType Junction -Path $SourcePath -Target $DestinationPath -Force -ErrorAction SilentlyContinue
+                    If (!(Test-Path $RegPath)) {
+                        New-Item -Path $RegPath -Force | Out-Null
+                        New-ItemProperty -Path $RegPath -Name $RegName -Value $RegValue -PropertyType STRING -Force | Out-Null
+                    }
+                    Else {
+                        New-ItemProperty -Path $RegPath -Name $RegName -Value $RegValue -PropertyType STRING -Force | Out-Null
+                    }
+                }
             }
-            Else {
-                New-Item $DestinationPath -ItemType Directory -Force -ErrorAction SilentlyContinue
+        }
+    }
+    Else {
+        If (Test-Path -Path $SyncFolder -ErrorAction SilentlyContinue) {
+            If ($SyncFolder -like "*Foley*") {
+                $DestinationPath = $SyncFolder + "\Applications\ND Office Echo"
+                If (Test-Path $DestinationPath -ErrorAction SilentlyContinue) {
+                    New-Item -ItemType Junction -Path $SourcePath -Target $DestinationPath -Force -ErrorAction SilentlyContinue
+                    If (!(Test-Path $RegPath)) {
+                        New-Item -Path $RegPath -Force | Out-Null
+                        New-ItemProperty -Path $RegPath -Name $RegName -Value $RegValue -PropertyType STRING -Force | Out-Null
+                    }
+                    Else {
+                        New-ItemProperty -Path $RegPath -Name $RegName -Value $RegValue -PropertyType STRING -Force | Out-Null
+                    }
+                }
+                Else {
+                    New-Item $DestinationPath -ItemType Directory -Force -ErrorAction SilentlyContinue
+                    New-Item -ItemType Junction -Path $SourcePath -Target $DestinationPath -Force -ErrorAction SilentlyContinue
+                    If (!(Test-Path $RegPath)) {
+                        New-Item -Path $RegPath -Force | Out-Null
+                        New-ItemProperty -Path $RegPath -Name $RegName -Value $RegValue -PropertyType STRING -Force | Out-Null
+                    }
+                    Else {
+                        New-ItemProperty -Path $RegPath -Name $RegName -Value $RegValue -PropertyType STRING -Force | Out-Null
+                    }
+                }
             }
         }
     }
 }
 Else {
-    Remove-Item -Path $SourcePath -Recurse -Force -ErrorAction SilentlyContinue
-    New-Item -ItemType Junction -Path $SourcePath -Target $DestinationPath -Force -ErrorAction SilentlyContinue
+    #Do Nothing
 }
 
 Stop-Transcript -Verbose
