@@ -278,10 +278,14 @@ Write-Verbose "Target sync folder is $SyncFolder."
 
 # Redirect select folders
 If (Test-Path -Path $SyncFolder -ErrorAction SilentlyContinue) {
-    Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'Desktop' -SetFolder 'Desktop' -Target 'Desktop'
-    Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'MyDocuments' -SetFolder 'Documents' -Target 'Documents'
-    Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'MyPictures' -SetFolder 'Pictures' -Target 'Pictures'
+    #Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'Desktop' -SetFolder 'Desktop' -Target 'Desktop'
+    #Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'MyDocuments' -SetFolder 'Documents' -Target 'Documents'
+    #Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'MyPictures' -SetFolder 'Pictures' -Target 'Pictures'
     Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'Favorites' -SetFolder 'Favorites' -Target 'Favorites'
+    Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'Downloads' -SetFolder 'Downloads' -Target 'Downloads'
+    Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'Music' -SetFolder 'Music' -Target 'Music'
+    Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'Videos' -SetFolder 'Videos' -Target 'Videos'
+    Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'Contacts' -SetFolder 'Contacts' -Target 'Contacts'
 }
 Else {
     Write-Verbose "$SyncFolder does not (yet) exist. Skipping folder redirection until next logon."
