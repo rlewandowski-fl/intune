@@ -299,10 +299,9 @@ Else {
 $SourcePath = (Get-ChildItem -Path Env:USERPROFILE -ErrorAction SilentlyContinue).Value
 $SourcePath = $SourcePath + "\ND Office Echo"
 If (Test-Path -Path $SourcePath -ErrorAction SilentlyContinue) {
-    $DestinationPath = (Get-ChildItem -Path Env:OneDrive -ErrorAction SilentlyContinue).Value
-    If (Test-Path -Path $DestinationPath -ErrorAction SilentlyContinue) {
-        If ($DestinationPath -like "*Foley*") {
-            $DestinationPath = $DestinationPath + "\Applications\ND Office Echo"
+    If (Test-Path -Path $SyncFolder -ErrorAction SilentlyContinue) {
+        If ($SyncFolder -like "*Foley*") {
+            $DestinationPath = $SyncFolder + "\Applications\ND Office Echo"
             If (Test-Path $DestinationPath -ErrorAction SilentlyContinue) {
                 $SourcePath = """" + $SourcePath + """"
                 $DestinationPath = """" + $DestinationPath + """"
