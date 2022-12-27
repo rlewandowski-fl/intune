@@ -297,7 +297,7 @@ Else {
 #Manual redirection using mklink
 #ND Office Echo
 $SourcePath = (Get-ChildItem -Path Env:USERPROFILE -ErrorAction SilentlyContinue).Value
-$SourcePath = $UserProfilePath + "\ND Office Echo"
+$SourcePath = $SourcePath + "\ND Office Echo"
 If (Test-Path -Path $SourcePath -ErrorAction SilentlyContinue) {
     $DestinationPath = (Get-ChildItem -Path Env:OneDrive -ErrorAction SilentlyContinue).Value
     If (Test-Path -Path $DestinationPath -ErrorAction SilentlyContinue) {
@@ -309,14 +309,12 @@ If (Test-Path -Path $SourcePath -ErrorAction SilentlyContinue) {
                 Start-Process -FilePath mklink -ArgumentList "/j $DestinationPath $SourcePath" -NoNewWindow -Wait -ErrorAction SilentlyContinue
             }
             Else {
-                $DestinationPath = """" + $DestinationPath + """"
                 New-Item $DestinationPath -ItemType Directory -ErrorAction SilentlyContinue
             }
         }
     }
 }
 Else {
-    $SourcePath = """" + $SourcePath + """"
     New-Item $SourcePath -ItemType Directory -ErrorAction SilentlyContinue
 }
 
