@@ -309,13 +309,13 @@ If (Test-Path -Path $SourcePath -ErrorAction SilentlyContinue) {
                 Start-Process -FilePath mklink -ArgumentList "/j $DestinationPath $SourcePath" -NoNewWindow -Wait -ErrorAction SilentlyContinue
             }
             Else {
-                New-Item $DestinationPath -ItemType Directory -ErrorAction SilentlyContinue
+                New-Item $DestinationPath -ItemType Directory -Force -ErrorAction SilentlyContinue
             }
         }
     }
 }
 Else {
-    New-Item $SourcePath -ItemType Directory -ErrorAction SilentlyContinue
+    New-Item $SourcePath -ItemType Directory -Force -ErrorAction SilentlyContinue
 }
 
 Stop-Transcript -Verbose
