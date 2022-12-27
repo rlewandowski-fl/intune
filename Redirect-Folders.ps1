@@ -294,7 +294,7 @@ Else {
     Write-Verbose "$SyncFolder does not (yet) exist. Skipping folder redirection until next logon."
 }
 
-#Manual redirection using mklink
+#Manual redirection of existing folder using junction
 #ND Office Echo
 $SourcePath = (Get-ChildItem -Path Env:USERPROFILE -ErrorAction SilentlyContinue).Value
 $SourcePath = $SourcePath + "\ND Office Echo"
@@ -305,7 +305,7 @@ If (Test-Path -Path $SourcePath -ErrorAction SilentlyContinue) {
             If (Test-Path $DestinationPath -ErrorAction SilentlyContinue) {
                 $SourcePath = """" + $SourcePath + """"
                 $DestinationPath = """" + $DestinationPath + """"
-                Start-Process -FilePath mklink -ArgumentList "/j $DestinationPath $SourcePath" -NoNewWindow -Wait -ErrorAction SilentlyContinue
+                New-Item -ItemType Junction -Path $SourcePath -Target $DestinationPath -Force -ErrorAction SilentlyContinue
             }
             Else {
                 New-Item $DestinationPath -ItemType Directory -Force -ErrorAction SilentlyContinue
