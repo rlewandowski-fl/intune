@@ -286,9 +286,29 @@ If (Test-Path -Path $SyncFolder -ErrorAction SilentlyContinue) {
     Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'Music' -SetFolder 'Music' -Target 'Music'
     Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'Videos' -SetFolder 'Videos' -Target 'Videos'
     Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'Contacts' -SetFolder 'Contacts' -Target 'Contacts'
+    Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'Recent' -SetFolder 'Recent' -Target 'Recent'
+    Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'SavedSearches' -SetFolder 'SavedSearches' -Target 'SavedSearches'
+    Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'Links' -SetFolder 'Links' -Target 'Links'
 }
 Else {
     Write-Verbose "$SyncFolder does not (yet) exist. Skipping folder redirection until next logon."
+}
+
+#Manual redirection using mklink
+#ND Office Echo
+$SourcePath = (Get-ChildItem -Path Env:USERPROFILE).Value
+$SourcePath = $UserProfilePath + "\ND Office Echo"
+$SourcePath = """" + $SourcePath + """"
+$DestinationPath = (Get-ChildItem -Path Env:OneDrive).Value
+If ($DestinationPath -like "*Foley*") {
+    $DestinationPath = $DestinationPath + "\Applications\ND Office Echo"
+}
+Else {
+    $DestinationPath = $DestinationPath + "\OneDrive - Foley & Lardner LLP\Applications\ND Office Echo"
+}
+$DestinationPath = """" + $DestinationPath + """"
+If (Test-Path -Path $SourcePath -ErrorAction SilentlyContinue) {
+    Start-Process -FilePath mklink -ArgumentList "/j $DestinationPath $SourcePath" -NoNewWindow -Wait -ErrorAction SilentlyContinue
 }
 
 Stop-Transcript -Verbose
