@@ -8,7 +8,7 @@
 [CmdletBinding(ConfirmImpact = 'Low', HelpURI = 'https://stealthpuppy.com/', SupportsPaging = $False,
     SupportsShouldProcess = $False, PositionalBinding = $False)]
 Param (
-    [Parameter()] $Url = "https://raw.githubusercontent.com/aaronparker/intune/main/Folder-Redirection/Redirect-Folders.ps1",
+    [Parameter()] $Url = "https://github.com/rlewandowski-fl/intune/blob/main/Redirect-Folders.ps1",
     [Parameter()] $Script = "Redirect-Folders.ps1",
     [Parameter()] $ScriptVb = "Redirect-Folders.vbs",
     [Parameter()] $TaskName = "Folder Redirection",
