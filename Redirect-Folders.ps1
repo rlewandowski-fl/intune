@@ -1,19 +1,17 @@
-﻿# Requires -Version 3
 <#
     .SYNOPSIS
         Creates a scheduled task to implement folder redirection.
 
     .NOTES
         Name: Redirect-Folders.ps1
-        Author: Aaron Parker
+        Author: Aaron Parker. Modified by Ryan Lewandowski
         Site: https://stealthpuppy.com
         Twitter: @stealthpuppy
 #>
-[CmdletBinding(ConfirmImpact = 'Low', HelpURI = 'https://stealthpuppy.com/', SupportsPaging = $False,
-    SupportsShouldProcess = $False, PositionalBinding = $False)]
-param ()
+[CmdletBinding(ConfirmImpact = 'Low', HelpURI = 'https://stealthpuppy.com/', SupportsPaging = $False, SupportsShouldProcess = $False, PositionalBinding = $False)]
+Param ()
 
-# Log file
+#Log file
 $VerbosePreference = "Continue"
 $stampDate = Get-Date
 $scriptName = ([System.IO.Path]::GetFileNameWithoutExtension($(Split-Path $script:MyInvocation.MyCommand.Path -Leaf)))
@@ -32,7 +30,7 @@ Function Set-KnownFolderPath {
             Forked from: https://gist.github.com/semenko/49a28675e4aae5c8be49b83960877ac5
     #>
     [CmdletBinding(SupportsShouldProcess)]
-    param (
+    Param (
         [Parameter(Mandatory = $true)]
         [ValidateSet('AddNewPrograms', 'AdminTools', 'AppUpdates', 'CDBurning', 'ChangeRemovePrograms', 'CommonAdminTools', 'CommonOEMLinks', 'CommonPrograms', `
                 'CommonStartMenu', 'CommonStartup', 'CommonTemplates', 'ComputerFolder', 'ConflictFolder', 'ConnectionsFolder', 'Contacts', 'ControlPanelFolder', 'Cookies', `
@@ -49,7 +47,7 @@ Function Set-KnownFolderPath {
         [System.String] $Path
     )
 
-    # Define known folder GUIDs
+    #Define known folder GUIDs
     $KnownFolders = @{
         'Contacts'       = '56784854-C6CB-462b-8169-88E350ACB882';
         'Cookies'        = '2B0F765D-C0E9-4171-908E-08A611B84FF6';
@@ -78,7 +76,7 @@ Function Set-KnownFolderPath {
         'Videos'         = @('18989B1D-99B5-455B-841C-AB7C74E4DDFC', '35286a68-3c57-41a1-bbb1-0eae73d76c95');
     }
 
-    # Define SHSetKnownFolderPath if it hasn't been defined already
+    #Define SHSetKnownFolderPath if it hasn't been defined already
     $Type = ([System.Management.Automation.PSTypeName]'KnownFolders').Type
     If (-not $Type) {
         $Signature = @'
@@ -88,17 +86,17 @@ public extern static int SHSetKnownFolderPath(ref Guid folderId, uint flags, Int
         $Type = Add-Type -MemberDefinition $Signature -Name 'KnownFolders' -Namespace 'SHSetKnownFolderPath' -PassThru
     }
 
-    # Make path, if doesn't exist
+    #Make path, if doesn't exist
     If (!(Test-Path $Path -PathType Container)) {
         If ($PSCmdlet.ShouldProcess($Path, ("New-Item '{0}'" -f $Path))) {
             New-Item -Path $Path -Type "Directory" -Force -Verbose
         }
     }
 
-    # Validate the path
+    #Validate the path
     If (Test-Path $Path -PathType Container) {
-        # Call SHSetKnownFolderPath
-        #  return $Type::SHSetKnownFolderPath([ref]$KnownFolders[$KnownFolder], 0, 0, $Path)
+        #Call SHSetKnownFolderPath
+        #Return $Type::SHSetKnownFolderPath([ref]$KnownFolders[$KnownFolder], 0, 0, $Path)
         ForEach ($guid in $KnownFolders[$KnownFolder]) {
             Write-Verbose "Redirecting $KnownFolders[$KnownFolder]"
             $result = $Type::SHSetKnownFolderPath([ref]$guid, 0, 0, $Path)
@@ -112,7 +110,7 @@ public extern static int SHSetKnownFolderPath(ref Guid folderId, uint flags, Int
         Throw New-Object System.IO.DirectoryNotFoundException "Could not find part of the path $Path."
     }
 
-    # Fix up permissions, if we're still here
+    #Fix up permissions, if we're still here
     Attrib +r $Path
     Write-Output $Path
 }
@@ -138,7 +136,7 @@ Function Get-KnownFolderPath {
     [Environment]::GetFolderPath($KnownFolder)
 }
 
-Function Redirect-Folder {
+Function Sync-Folder {
     <#
         .SYNOPSIS
             Function exists to reduce code required to redirect each folder.
@@ -157,20 +155,20 @@ Function Redirect-Folder {
         [System.String] $Target
     )
 
-    # Get current Known folder path
+    #Get current Known folder path
     $Folder = Get-KnownFolderPath -KnownFolder $GetFolder
 
-    # If paths don't match, redirect the folder
+    #If paths don't match, redirect the folder
     If ($Folder -ne "$SyncFolder\$Target") {
-        # Redirect the folder
+        #Redirect the folder
         Write-Verbose "Redirecting $SetFolder to $SyncFolder\$Target"
         Set-KnownFolderPath -KnownFolder $SetFolder -Path "$SyncFolder\$Target"
 
-        # Move files/folders into the redirected folder
+        #Move files/folders into the redirected folder
         Write-Verbose "Moving data from $SetFolder to $SyncFolder\$Target"
         Move-File -Source $Folder -Destination "$SyncFolder\$Target" -Log "$env:LocalAppData\RedirectLogs\Robocopy$Target.log"
 
-        # Hide the source folder (rather than delete it)
+        #Hide the source folder (rather than delete it)
         Attrib +h $Folder
     }
     Else {
@@ -197,7 +195,7 @@ Function Invoke-Process {
         time the process returns an exit code other than 0, treat it as an error.
     #>
     [CmdletBinding(SupportsShouldProcess)]
-    param (
+    Param (
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [System.String] $FilePath,
@@ -208,7 +206,7 @@ Function Invoke-Process {
     )
     $ErrorActionPreference = 'Stop'
 
-    try {
+    Try {
         $stdOutTempFile = "$env:TEMP\$((New-Guid).Guid)"
         $stdErrTempFile = "$env:TEMP\$((New-Guid).Guid)"
 
@@ -221,29 +219,29 @@ Function Invoke-Process {
             PassThru               = $true;
             NoNewWindow            = $true;
         }
-        if ($PSCmdlet.ShouldProcess("Process [$($FilePath)]", "Run with args: [$($ArgumentList)]")) {
+        If ($PSCmdlet.ShouldProcess("Process [$($FilePath)]", "Run with args: [$($ArgumentList)]")) {
             $cmd = Start-Process @startProcessParams
             $cmdOutput = Get-Content -Path $stdOutTempFile -Raw
             $cmdError = Get-Content -Path $stdErrTempFile -Raw
-            if ($cmd.ExitCode -ne 0) {
-                if ($cmdError) {
+            If ($cmd.ExitCode -ne 0) {
+                If ($cmdError) {
                     throw $cmdError.Trim()
                 }
-                if ($cmdOutput) {
+                If ($cmdOutput) {
                     throw $cmdOutput.Trim()
                 }
             }
-            else {
-                if ([System.String]::IsNullOrEmpty($cmdOutput) -eq $false) {
+            Else {
+                If ([System.String]::IsNullOrEmpty($cmdOutput) -eq $false) {
                     Write-Output -InputObject $cmdOutput
                 }
             }
         }
     }
-    catch {
+    Catch {
         $PSCmdlet.ThrowTerminatingError($_)
     }
-    finally {
+    Finally {
         Remove-Item -Path $stdOutTempFile, $stdErrTempFile -Force -ErrorAction Ignore
     }
 }
@@ -266,29 +264,31 @@ Function Move-File {
         $Destination,
         $Log
     )
-    If (!(Test-Path (Split-Path $Log))) { New-Item -Path (Split-Path $Log) -ItemType Container }
+    If (!(Test-Path (Split-Path $Log))) {
+		New-Item -Path (Split-Path $Log) -ItemType Container
+	}
     Write-Verbose "Moving data in folder $Source to $Destination."
     Robocopy.exe "$Source" "$Destination" /E /MOV /XJ /XF *.ini /R:1 /W:1 /NP /LOG+:$Log
 }
 
 
-# Get OneDrive sync folder
+#Get OneDrive sync folder
 $SyncFolder = Get-ItemPropertyValue -Path 'HKCU:\Software\Microsoft\OneDrive\Accounts\Business1' -Name 'UserFolder' -ErrorAction SilentlyContinue
 Write-Verbose "Target sync folder is $SyncFolder."
 
-# Redirect select folders
+#Redirect select folders
 If (Test-Path -Path $SyncFolder -ErrorAction SilentlyContinue) {
-    #Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'Desktop' -SetFolder 'Desktop' -Target 'Desktop'
-    #Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'MyDocuments' -SetFolder 'Documents' -Target 'Documents'
-    #Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'MyPictures' -SetFolder 'Pictures' -Target 'Pictures'
-    Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'Favorites' -SetFolder 'Favorites' -Target 'Favorites'
-    Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'Downloads' -SetFolder 'Downloads' -Target 'Downloads'
-    Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'Music' -SetFolder 'Music' -Target 'Music'
-    Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'Videos' -SetFolder 'Videos' -Target 'Videos'
-    Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'Contacts' -SetFolder 'Contacts' -Target 'Contacts'
-    Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'Recent' -SetFolder 'Recent' -Target 'Recent'
-    Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'SavedSearches' -SetFolder 'SavedSearches' -Target 'SavedSearches'
-    Redirect-Folder -SyncFolder $SyncFolder -GetFolder 'Links' -SetFolder 'Links' -Target 'Links'
+    #Sync-Folder -SyncFolder $SyncFolder -GetFolder 'Desktop' -SetFolder 'Desktop' -Target 'Desktop'
+    #Sync-Folder -SyncFolder $SyncFolder -GetFolder 'MyDocuments' -SetFolder 'Documents' -Target 'Documents'
+    #Sync-Folder -SyncFolder $SyncFolder -GetFolder 'MyPictures' -SetFolder 'Pictures' -Target 'Pictures'
+    Sync-Folder -SyncFolder $SyncFolder -GetFolder 'Favorites' -SetFolder 'Favorites' -Target 'Favorites'
+    Sync-Folder -SyncFolder $SyncFolder -GetFolder 'Downloads' -SetFolder 'Downloads' -Target 'Downloads'
+    Sync-Folder -SyncFolder $SyncFolder -GetFolder 'Music' -SetFolder 'Music' -Target 'Music'
+    Sync-Folder -SyncFolder $SyncFolder -GetFolder 'Videos' -SetFolder 'Videos' -Target 'Videos'
+    Sync-Folder -SyncFolder $SyncFolder -GetFolder 'Contacts' -SetFolder 'Contacts' -Target 'Contacts'
+    Sync-Folder -SyncFolder $SyncFolder -GetFolder 'Recent' -SetFolder 'Recent' -Target 'Recent'
+    Sync-Folder -SyncFolder $SyncFolder -GetFolder 'SavedSearches' -SetFolder 'SavedSearches' -Target 'SavedSearches'
+    Sync-Folder -SyncFolder $SyncFolder -GetFolder 'Links' -SetFolder 'Links' -Target 'Links'
 }
 Else {
     Write-Verbose "$SyncFolder does not (yet) exist. Skipping folder redirection until next logon."
@@ -366,3 +366,5 @@ Else {
 }
 
 Stop-Transcript -Verbose
+
+Exit(0)
