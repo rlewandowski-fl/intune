@@ -177,7 +177,7 @@ Function Sync-Folder {
 }
 
 Function Invoke-Process {
-    <#PSScriptInfo
+    <#
         .VERSION 1.4
         .GUID b787dc5d-8d11-45e9-aeef-5cf3a1f690de
         .AUTHOR Adam Bertram
