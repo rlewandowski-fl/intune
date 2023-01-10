@@ -31,7 +31,7 @@ Function Set-KnownFolderPath {
         .NOTES
             Forked from: https://gist.github.com/semenko/49a28675e4aae5c8be49b83960877ac5
     #>
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $true)]
         [ValidateSet('AddNewPrograms', 'AdminTools', 'AppUpdates', 'CDBurning', 'ChangeRemovePrograms', 'CommonAdminTools', 'CommonOEMLinks', 'CommonPrograms', `
@@ -90,7 +90,7 @@ public extern static int SHSetKnownFolderPath(ref Guid folderId, uint flags, Int
 
     # Make path, if doesn't exist
     If (!(Test-Path $Path -PathType Container)) {
-        if ($PSCmdlet.ShouldProcess($Path, ("New-Item '{0}'" -f $Path))) {
+        If ($PSCmdlet.ShouldProcess($Path, ("New-Item '{0}'" -f $Path))) {
             New-Item -Path $Path -Type "Directory" -Force -Verbose
         }
     }
